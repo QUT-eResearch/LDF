@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	   		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	   		http://www.springframework.org/schema/context
+	   		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+			http://www.springframework.org/schema/mvc 
+			http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+			http://www.springframework.org/schema/tx 
+			http://www.springframework.org/schema/tx/spring-tx.xsd
+			http://www.springframework.org/schema/task
+   			http://www.springframework.org/schema/task/spring-task-3.0.xsd
+			">
+	
+	<!-- Activates various annotations to be detected in bean classes -->
+	<context:annotation-config />
+
+	
+	
+	<!-- Scans the classpath for annotated components that will be auto-registered as Spring beans.
+	 For example @Controller and @Service. Make sure to set the correct base-package-->
+	<context:component-scan base-package="au.edu.qut.ife.ldf" />
+	
+	<!-- Configures the annotation-driven Spring MVC Controller programming model.
+	Note that, with Spring 3.0, this tag works in Servlet MVC only!  -->
+	<mvc:annotation-driven /> 
+	<mvc:resources mapping="/js/**" location="/WEB-INF/js/"/>
+	<mvc:resources mapping="/css/**" location="/WEB-INF/css/"/>
+	<mvc:resources mapping="/images/**" location="/WEB-INF/images/"/>
+	<mvc:resources mapping="/other/**" location="/WEB-INF/other/"/>
+		
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	  <property name="locations">
+	    <list>
+	      <value>/WEB-INF/application.properties</value>
+	    </list>
+	  </property>
+	  <property name="ignoreUnresolvablePlaceholders" value="true"/>
+	</bean>
+	 <bean id="messageSource"
+        class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="classpath:messages" />
+        <property name="defaultEncoding" value="UTF-8" />
+    </bean>
+    
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+		p:location="/WEB-INF/application.properties" />
+
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close"
+		p:driverClassName="${jdbc.driverClassName}"
+		p:url="${jdbc.databaseurl}" p:username="${jdbc.username}"
+		p:password="${jdbc.password}" />
+
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation">
+			<value>classpath:hibernate.cfg.xml</value>
+		</property>
+		<property name="configurationClass">
+			<value>org.hibernate.cfg.AnnotationConfiguration</value>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${jdbc.dialect}</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+	<tx:annotation-driven />
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<!-- Activates @Scheduled and @Async annotations for scheduling -->
+ <task:annotation-driven executor="executorWithPoolSizeRange" scheduler="taskScheduler"/>
+  
+ <!-- 
+   The 'executor' element:
+   When a task is submitted, the executor will first 
+   try to use a free thread if the number of active threads is currently less than 
+   the core size. If the core size has been reached, then the task will be added 
+   to the queue as long as its capacity has not yet been reached. Only then, 
+   if the queue's capacity has been reached, will the executor create a new 
+   thread beyond the core size. If the max size has also been reached, then 
+   the executor will reject the task 
+   See: 25.4.2 The 'executor' element -->
+ <!-- Defines a ThreadPoolTaskExecutor instance with configurable pool size, queue-capacity, keep-alive, 
+    and rejection-policy values. The id becomes the default thread name prefix -->
+ <task:executor id="executorWithPoolSizeRange"
+                pool-size="5-25"
+                queue-capacity="100"/>
+   
+  <!-- Defines a ThreadPoolTaskScheduler instance with configurable pool size.
+    The id becomes the default thread name prefix. -->             
+  <task:scheduler id="taskScheduler" pool-size="1"/>  
+	
+</beans>

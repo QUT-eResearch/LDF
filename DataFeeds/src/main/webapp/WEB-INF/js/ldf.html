@@ -1,0 +1,483 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/DataFeeds/js/lib/jquery.js"></script>
+<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/excanvas.min.js"></script><![endif]-->
+<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>-->
+<script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.js"></script>
+<script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.resize.js"></script>
+<script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.time.js"></script>
+<link type="text/css" href="/DataFeeds/css/home2.css" rel="stylesheet">
+<link type="text/css" href="/DataFeeds/css/map.css" rel="stylesheet">
+
+	<link rel="stylesheet" href="/DataFeeds/css/jquery-ui.css">
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.core.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.widget.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.mouse.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.draggable.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.position.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.resizable.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.button.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.dialog.min.js"></script>
+	<!--removed demo css-->
+
+    <script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.resize.js"></script>
+	<script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.time.js"></script>
+	
+	<script type="text/javascript" src="/DataFeeds/js/csvChart.js"></script>
+	<script type="text/javascript" src="/DataFeeds/js/image.js"></script>
+    <link rel="stylesheet" href="/DataFeeds/css/csvChart.css">
+     
+<title>LDF</title>
+</head>
+<script>
+var map;
+var markersArray = [];
+
+function initialize() {
+  var mapOptions = {
+    center: new google.maps.LatLng(-29.274398, 133.775136),
+    zoom: 4,
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    mapTypeControl: false,
+    scrollwheel: false,
+    rotateControl: false,
+    panControl: false,
+    streetViewControl: false,
+    zoomControl: true,
+    zoomControlOptions: {
+      style: google.maps.ZoomControlStyle.SMALL,
+      position: google.maps.ControlPosition.RIGHT_TOP
+    },
+    overviewMapControl:false
+  };
+  map = new google.maps.Map(document.getElementById("map_canvas"),
+      mapOptions);
+
+  setFeeds();
+
+}
+
+function setFeeds(){
+	$.when(
+			$.post(CONTEXTPATH+"/map/loadProjects"
+				)
+		   ).done(function(data) {
+			   $.each(data, function(i, data) {
+				   markersArray.push(data);   
+				  	});
+			   listen();
+			   }
+	);
+	
+}
+	
+function listen(){
+	var infowindow = new google.maps.InfoWindow();
+	var marker, i;
+
+	$.each(markersArray, function(i, markersArray) {
+		//console.log(i, markersArray.name);
+        marker = new google.maps.Marker({
+        position: new google.maps.LatLng(markersArray.latitude, markersArray.longitude),
+        map: map
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+        	//showFeed(markersArray.feedId);
+        	showFeedInfo(markersArray, map, marker);
+          //infowindow.setContent(markersArray.name);
+          //infowindow.open(map, marker);
+        }
+      })(marker, i));
+    }); 
+
+}	
+	
+function showFeed(id){
+	$.when(
+			$.post(CONTEXTPATH+"/map/loadProject?idProject="+id
+				)
+		   ).done(function(data) {
+			   $('.feedInfo').css('display','block');
+			   $.each(data, function(i, data) {
+					   $(".feedDetails").html("<li> Feed Name:"+data.name + "<br/><!--<a href='/DataFeeds/charts/csvChart' >csvChart</a>--></li>");
+				  	});
+
+			   }
+	);
+}	
+
+function showFeedInfo(markerArray, map, marker){
+	///TO DO: Change Feed to ProjectFeeds to allow ProjectFeeds 0 to many feeds
+	$.when(
+			$.post(CONTEXTPATH+"/map/loadProject?idProject="+markerArray.idProject /*To obtain list of feeds it has*/
+				)
+		   ).done(function(data) {
+				var infowindow = new google.maps.InfoWindow();
+			   $('.feedInfo').css('display','block');
+			   var content = "<div id='"+markerArray.idProject+"infoWindowContent'>";
+			   content = content + "<p class='center title'><strong>" + markerArray.name + "</strong></p><ul class='projectInfo'>";
+			   $.each(data, function(i, data) {
+				   //TO DO: List all feed types in this FEED (Project/marker)
+				   content = content + "<li> ";
+				   content = content + "<table id='"+markerArray.idProject+"_"+data.idFeed+"_feedElements' class='listfeedElements'><tr>";
+				   content = content + "<td>"+data.name+" </td> ";
+				   //content = content +"<a href='javascript:buildContentInfoWindow(";
+				   
+				   //content = content + "&quot;";
+				   //content = content + data.idFeed +","+markerArray.idProject+","+data.type+","+data.name;
+				   //content = content + "&quot;)'> open feed "+data.name+" </a>";
+				   
+				   content = content +"<td><a class='mapButton' href='javascript:buildContentInfoWindow("+markerArray.idProject+", &quot;"+markerArray.name+"&quot;, "+data.idFeed+",&quot;"+data.type+"&quot;,&quot;"+data.name+"&quot;)'";
+				   content = content + "> open </a></td></tr>";
+				   content = content + "</table>";
+				  	});
+			   content = content + "</ul></div>";
+			   infowindow.setContent(content);//$(#"+id+"-window-content).clone()[0]);
+		       infowindow.open(map, marker);
+			   }
+	);
+}	
+function buildContentInfoWindow(idProject, projectName, idFeed, type, name){
+
+	//console.log(idFeed, idProject, type, name);
+	$.when(
+			$.post(CONTEXTPATH+"/map/loadFeeds/"+idProject+"/"+idFeed) /*To obtain list of elements (charts,gauges,meter, etc) it has*/
+				
+		   ).done(function(data) {
+			   var new_div = document.createElement('div');
+				document.body.appendChild(new_div);
+				className = idProject+"_"+ idFeed+ "_feedWindow";
+				new_div.className = className;
+				new_div.setAttribute('id', className);
+				 var content = "<p>"+projectName + " > " + name+"</p><ul class='feedElements'>";
+			   
+				$.each(data, function(i, data) {
+					if(data.type.localeCompare('image')==0){
+					 	content = content + "<li> <a href='javascript:loadImage("+idProject+","+data.idFeed+","+data.idChart+",&quot;"+data.shortName+"&quot;)'>  "+data.shortName+"  </a></li>";					
+					 }
+					 else{
+						 content = content + "<li> <a href='javascript:loadChart("+idProject+","+data.idFeed+","+data.idChart+",&quot;"+data.shortName+"&quot;)'>  "+data.shortName+"  </a></li>";					
+					 }
+					//$("#"+className).append("<li> <a href='javascript:buildDialogForFeedElements("+idProject+","+data.idFeed+","+data.idChart+",&quot;"+data.name+"&quot;)'>  "+data.shortName+"  </a></li>");
+					//$("#"+idProject+"_"+idFeed+"_feedElements").append("<li> <a href='javascript:buildDialogForFeedElements("+idProject+","+data.idFeed+","+data.idChart+",&quot;"+data.name+"&quot;)'>  "+data.name+"  </a></li>");
+				});
+				content = content + "</ul>";
+				//new_div.setContent(content);
+				
+				$("#"+className).html(content);
+				
+				$( "#"+className ).dialog({
+					title: name,
+		 	        close: function(event, ui)
+			 	        {
+			 	        	$(this).dialog('close').remove();//removed destroy instead of close so it can get called again byt the scheduller
+			 	        },
+			 	    width:'auto'
+				});
+			  
+		});
+	
+}
+
+function buildDialogForFeedElements(idProject, idFeed, idChart, name){	
+	var new_div = document.createElement('div');
+	document.body.appendChild(new_div);
+	className = idChart+"infoWindowContentInner";
+	new_div.className = className;
+	//new_div.innerHTML = '<u>'+feedId+'</u>';
+	//TO DO: get the necesary headers from the chart like chartTitle, columnIds and names to generate content
+	var content = "<h3>"+name+"</h3>";
+	content = content + "<div style='width:100%'>";
+	content = content + "<div id='chartsPanel'>";
+	content = content + "<div class='center'>";
+	content = content + "<div class='chartBox'>";
+	content = content + "<h2 class='chartBoxName'></h2>";
+	content = content + "</div>";
+	/*$( "."+className ).dialog({
+ 	        title: name,
+ 	        close: function(event, ui)
+ 	        {
+ 	        	$(this).dialog('destroy').remove();
+ 	        },
+          minHeight: 400,
+          minWidth: 500,
+          maxWidth: 700,
+          maxHeight: 600
+	            		
+	});*/
+	content = content + "<div class='chart'>";
+	content = content + '<div id='+idChart+'_Chart style=width:100%;height:300px;></div>';
+	content = content + "</div>";
+	content = content + "</div>";
+	
+	new_div.innerHTML = content;
+	//console.log(content);
+	//TODO: IF type of feed load appropiate function
+	
+	loadImage(idProject, idFeed, idChart, name);
+	//loadChart(idProject, idFeed, idChart);
+	new_div.style.cssText = 'display:none;';
+}
+
+function loadScript() {
+	var script = document.createElement("script");
+	script.type = "text/javascript";
+	script.src = "http://maps.googleapis.com/maps/api/js?key=AIzaSyB5z4Crv2MCH1n1e0Uvuzy2yVnvXyetURg&sensor=false&callback=initialize";
+	document.body.appendChild(script);
+
+}
+function reCenter(){
+	var center = map.getCenter(); 
+    google.maps.event.trigger(map, 'resize'); 
+    map.setCenter(center); 
+}
+
+window.onload = loadScript;
+window.onresize = reCenter;
+
+/*CSV CHARTS*/
+
+function loadChart(idProject, idFeed, idChart, name){
+	
+	var dataInfo = new Object();
+    dataInfo.idProject = idProject;
+    dataInfo.idFeed = idFeed;
+    dataInfo.idChart = idChart;
+    dataInfo.name = name;
+	
+	generateChartDiv(null, dataInfo);
+	//drawChart(1, "Temperature", "T", projectId, feedId, chartId);
+	//$('.'+feedId+'_chartBoxName').html("Temperature");
+	
+	/*$('#'+feedId+'_chartSelect').on('change', function() {
+		
+		var fieldName = $('#'+feedId+'_chartSelect option:selected').text();
+		$('.'+feedId+'_chartBoxName').html(fieldName);
+		var shortN = $('#'+feedId+'_chartSelect option:selected').attr("name");
+		drawChart( this.value, fieldName, shortN, feedId ); // or $(this).val()
+		});
+	*/
+}
+function generateChartDiv(imageLocation, dataInfo){
+	
+	var new_div = document.createElement('div');
+	document.body.appendChild(new_div);
+	className = dataInfo.idProject+"_"+ dataInfo.idFeed+ "_"+ dataInfo.idChart + "_ChartWindow";
+	new_div.className = className;
+	new_div.setAttribute('id', className);
+	//$("#"+className).html("<img src='"+CONTEXTPATH+imageLocation+"'/>");
+	drawChart(1, dataInfo.name, " - ", dataInfo.idProject, dataInfo.idFeed, dataInfo.idChart, className);
+
+	$( "#"+className ).dialog({
+		title: dataInfo.name,
+		width:'500',
+		height:'300',
+		resizable: true,
+	        close: function(event, ui)
+ 	        {
+ 	        	$(this).dialog('close').remove();
+ 	        },
+	});
+	
+}
+/*
+function loadCharts(value, name, shortN){
+	
+	$.post(CONTEXTPATH+"/feed/loadFile/convert",
+			{ 	field:  value,
+		  		fieldName:  name,
+		  		shortName: shortN},
+				function(data){
+		  			//console.log(data);
+					generateChart(data);
+			});
+	
+}
+*/
+//used	
+/*
+function drawChart(value, name, shortN, idProject, idFeed, idChart, className) {
+	
+	$.when(
+			$.post(CONTEXTPATH+"/charts/convert/"+idProject+"/"+idFeed+"/"+idChart,
+				{ 	field:  value,
+			 		fieldName:  name,
+				  	shortName: shortN
+				})
+		   ).done(function(data) {
+		  			//console.log(data);
+					generateChart(data, idFeed, className);
+			   }
+	);
+}
+*/
+
+function drawChart(value, name, shortN, idProject, idFeed, idChart, className){	
+	
+	//Init
+	$.when(
+			$.post(CONTEXTPATH+"/charts/convert/"+idProject+"/"+idFeed+"/"+idChart,
+				{ 	field:  value,
+			 		fieldName:  name,
+				  	shortName: shortN
+				})
+		   ).done(function(data) {
+		  			//console.log(data);
+					generateChart(data, idFeed, className);
+			   }
+	);
+	
+	//Set interval for next
+	setInterval(function() {
+		$.when(
+				$.post(CONTEXTPATH+"/charts/convert/"+idProject+"/"+idFeed+"/"+idChart,
+					{ 	field:  value,
+				 		fieldName:  name,
+					  	shortName: shortN
+					})
+			   ).done(function(data) {
+			  			//console.log(data);
+						generateChart(data, idFeed, className);
+				   }
+		);
+	}, 200000); 
+		
+		   
+};
+
+	
+function generateChart(data, feedId, className){
+	
+	var parseMe = "{\"color\":\"#ff0000\",\"label\":\""+data.shortName+"\" , \"data\":" + data.value + "}";
+	
+	var chartData = $.parseJSON(parseMe);
+	//console.log(chartData);
+		$(function () {
+			var chart = $('#'+className);
+			var plot = $.plot(chart, [ chartData ], {
+						series: {
+							lines: {
+								show: true
+							},
+							points: {
+								how: true
+							}
+						},
+						grid: {
+							hoverable: true,
+							clickable: true
+						},
+						xaxis: {
+							mode: "time",
+							timeformat: "%H:%M",
+							min: data.xMin,
+							max: data.xMax,
+							/*tickSize: [1, "hour"]*/ 
+						}
+
+					}
+			
+			);
+			
+		});
+		loadInteractive(className); 
+		
+}
+function convertUTC(input){
+	  var parts = input.match(/(\d+)/g);
+	  // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
+	  var date = Date.UTC(parts[0], parts[1]-1, parts[2], parts[3], parts[4]); // months are 0-based
+	  return date;
+	  //return Date.UTC(date);
+}
+function dateTimeToUTC(date,time){
+	  var dateParts = input.match(/(\d+)/g);
+	  // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
+	  var timeParts = input.match(/(\d+)/g);
+	  console.log(dateParts, timeParts);
+	  var date = Date.UTC(parts[0], parts[1]-1, parts[2], parts[3], parts[4]); // months are 0-based
+	  return date;
+	  //return Date.UTC(date);
+}
+function loadInteractive(className) {
+	
+	function showTooltip(x, y, contents) {
+		$("<div id='"+className+"_tooltip'>" + contents + "</div>").css({
+			position: "fixed",
+			display: "none",
+			top: y + 5,
+			left: x + 5,
+			border: "1px solid #fdd",
+			padding: "2px",
+			"background-color": "#fee",
+			opacity: 0.80
+		}).appendTo("."+className).fadeIn(200);
+	}
+
+	var previousPoint = null;
+	$('#'+className).bind("plothover", function (event, pos, item) {
+	
+		if ($('#'+className+'_enablePosition:checked').length > 0) {
+			var str = "(" + pos.x.toFixed(2) + ", " + pos.y.toFixed(2) + ")";
+
+			$('#'+className+'_hoverdata').text(str);
+		}
+	
+		//if ($("#enableTooltip:checked").length > 0) {
+			if(1){
+			if (item) {
+				if (previousPoint != item.dataIndex) {
+	
+					previousPoint = item.dataIndex;
+	
+					$("#"+className+"_tooltip").remove();
+					var x = item.datapoint[0].toFixed(2),
+					y = item.datapoint[1].toFixed(2);
+	
+					showTooltip(item.pageX, item.pageY,
+					    item.series.label + " = " + y);
+				}
+			} else {
+				$("#"+className+"_tooltip").remove();
+				previousPoint = null;            
+			}
+		}
+	});
+
+	$('#'+className+'_Chart').bind("plotclick", function (event, pos, item) {
+		if (item) {
+			$('#'+className+'_clickdata').text(" - click point " + item.dataIndex + " in " + item.series.label);
+			plot.highlight(item.series, item.datapoint);
+		}
+	});
+
+}
+
+/*CSV CHARTS*/
+</script>
+
+<body>
+<script>
+var CONTEXTPATH = "/DataFeeds";
+</script>
+<div class="main">
+	<div class="map">
+		<div id="map_canvas" style="width:100%; height:100%"></div>
+		<div class="feedInfo">
+		<div>
+			<ul class="feedDetails"></ul>
+		</div>
+		</div>
+	</div>
+</div>
+		
+</body>
+</html>
+

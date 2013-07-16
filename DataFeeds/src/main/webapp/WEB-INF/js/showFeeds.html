@@ -1,0 +1,144 @@
+
+    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/DataFeeds/js/lib/jquery.js"></script>
+<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/excanvas.min.js"></script><![endif]-->
+<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>-->
+<script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.js"></script>
+<script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.resize.js"></script>
+<script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.time.js"></script>
+<link type="text/css" href="/DataFeeds/css/home2.css" rel="stylesheet">
+<link type="text/css" href="/DataFeeds/css/tabular.css" rel="stylesheet">
+
+	<link rel="stylesheet" href="/DataFeeds/css/jquery-ui.css">
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.core.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.widget.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.mouse.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.draggable.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.position.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.resizable.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.button.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.dialog.min.js"></script>
+	<script src="/DataFeeds/js/jQuery-UI/jquery.ui.tabs.min.js"></script>
+	<!--removed demo css-->
+
+    <script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.resize.js"></script>
+	<script language="javascript" type="text/javascript" src="/DataFeeds/js/lib/jquery.flot.time.js"></script>
+	
+	<script type="text/javascript" src="/DataFeeds/js/csvChart.js"></script>
+	<script type="text/javascript" src="/DataFeeds/js/insertImage.js"></script>
+    <link rel="stylesheet" href="/DataFeeds/css/csvChart.css">
+     
+<title>LDF</title>
+</head>
+<script>
+var CONTEXTPATH = "/DataFeeds";
+
+function setFeeds(){
+	$.when(
+			$.post(CONTEXTPATH+"/map/loadProjects"
+				)
+		   ).done(function(data) {
+			   return data;
+			   }
+	);
+	
+}
+function showFeed(id, projectName){
+	$.when(
+			$.post(CONTEXTPATH+"/map/loadProject?idProject="+id
+				)
+		   ).done(function(data) {
+			   $('.feedInfo').css('display','block');
+			   $.each(data, function(i, data) {
+
+				   	   var className = data.idProject+"_"+ data.idFeed+ "_feedWindow";
+					   $(".feedDetails").append("<li><a href='#"+ className + "'><span>"+data.type+"</span></a></li>");
+					   $("<div id='"+className+"'>"+data.type+"</div>").insertAfter('.feedDetails');
+					   buildContentInfoWindow(data.idProject, projectName, data.idFeed, data.type, data.name);
+				  	});
+			   jQuery('#tabs2').tabs();
+			   }
+	);
+}
+function buildContentInfoWindow(idProject, projectName, idFeed, type, name){
+
+	//console.log(idFeed, idProject, type, name);
+	$.when(
+			$.post(CONTEXTPATH+"/map/loadFeeds/"+idProject+"/"+idFeed) /*To obtain list of elements (charts,gauges,meter, etc) it has*/
+				
+		   ).done(function(data) {
+			   var new_div = document.createElement('div');
+				document.body.appendChild(new_div);
+				className = idProject+"_"+ idFeed+ "_feedWindow";
+				new_div.className = className;
+				new_div.setAttribute('id', className);
+
+				 var content = "<p>"+projectName + " > " + name+"</p><div class='feedDate'></div><ul class='feedElements'>";
+			   
+				$.each(data, function(i, data) {
+					if(data.type.localeCompare('image')==0){
+						
+						loadImage(idProject, data.idFeed, data.idChart, data.shortName);
+						var feedclassName = idProject+"_"+data.idFeed+"_"+data.idChart+"_ImageWindow";
+						
+							content = content + "<li id='"+feedclassName+"'></li>";
+						
+					 	//content = content + "<li>"loadImage("+idProject+","+data.idFeed+","+data.idChart+",&quot;"+data.shortName+"&quot;)' "+data.shortName+"  </li>";					
+					 }
+					 else{
+						 content = content + "<li> <a href='javascript:loadChart("+idProject+","+data.idFeed+","+data.idChart+",&quot;"+data.shortName+"&quot;)'>  "+data.shortName+"  </a></li>";					
+					 }
+					//$("#"+className).append("<li> <a href='javascript:buildDialogForFeedElements("+idProject+","+data.idFeed+","+data.idChart+",&quot;"+data.name+"&quot;)'>  "+data.shortName+"  </a></li>");
+					//$("#"+idProject+"_"+idFeed+"_feedElements").append("<li> <a href='javascript:buildDialogForFeedElements("+idProject+","+data.idFeed+","+data.idChart+",&quot;"+data.name+"&quot;)'>  "+data.name+"  </a></li>");
+				});
+				content = content + "</ul>";
+				//new_div.setContent(content);
+				
+				$("#"+className).html(content);
+				
+				
+			  
+		});
+	
+}
+
+//To change to grab the day from the feed
+function getTodaysDate(){
+	var today = new Date();
+	var dd = today.getDate();
+	var mm = today.getMonth()+1; //January is 0!
+	
+	var yyyy = today.getFullYear();
+	if(dd<10){dd='0'+dd} if(mm<10){mm='0'+mm} today = mm+'/'+dd+'/'+yyyy;
+	return today;
+}
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+</script>
+<script>
+jQuery(document).ready(function(){
+	
+	showFeed(getParameterByName('idProject'),getParameterByName('projectName'));
+	
+	//grab type of feed and split it
+	
+	
+	
+});
+</script>
+<body>
+<div id="tabs2" class="feedInfo">
+<ul class="feedDetails">
+</ul>
+</div>
+
+</body>

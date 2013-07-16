@@ -1,0 +1,1 @@
+<p><a class="grayButton" href="/DataFeeds">Home</a>&#160;&#160;<a class="grayButton"  href="/DataFeeds/j_spring_security_logout">Log Out</a></p>

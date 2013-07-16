@@ -1,0 +1,41 @@
+.feedInfo{
+	padding:20px;
+	display:block;
+	float:none;
+	width:100%;
+	height:100%;
+}
+
+.projectInfo{
+	height:100%;
+	
+}
+.center{
+	text-align:center;
+	padding:5px;
+}
+.title{
+	
+}
+
+.feedElements{
+	font-size:0;
+    text-align:center
+}
+
+.feedElements li{
+	display:inline;
+    zoom:1
+}
+
+.feedElements li > * {
+    max-width:750px;
+    margin:0 auto
+}
+
+.feedDate{
+    text-align:center
+}
+.feedDetails{
+	font-size:12px;
+}

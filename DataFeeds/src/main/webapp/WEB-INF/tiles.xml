@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+    <definition name="base.definition"
+        template="/WEB-INF/jsp/layout.jsp">
+        <put-attribute name="title" value="" />
+        <put-attribute name="header" value="/WEB-INF/jsp/header.jsp" />
+        <put-attribute name="subHeader" value="/WEB-INF/jsp/subHeader.jsp" />
+        <put-attribute name="menu" value="/WEB-INF/jsp/menu.jsp" />
+        <put-attribute name="body" value="" />
+        <put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+    </definition>
+     <definition name="chart.definition"
+        template="/WEB-INF/jsp/chartLayout.jsp">
+        <put-attribute name="title" value="" />
+        <put-attribute name="header" value="/WEB-INF/jsp/header.jsp" />
+        <put-attribute name="body" value="" />
+        <put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+    </definition>
+	<definition name="map.definition"
+        template="/WEB-INF/jsp/mapLayout.jsp">
+        <put-attribute name="title" value="" />
+        <put-attribute name="header" value="/WEB-INF/jsp/header.jsp" />
+        <put-attribute name="body" value="" />
+        <put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+    </definition>
+    <definition name="feed" extends="chart.definition">
+        <put-attribute name="title" value="Feed" />
+        <put-attribute name="body" value="/WEB-INF/jsp/feed.jsp" />
+    </definition>
+    
+    <definition name="admin" extends="base.definition">
+    	<put-attribute name="title" value="ListFolders"></put-attribute>
+    	<put-attribute name="body" value="/WEB-INF/jsp/listFolders.jsp" />
+    </definition>
+    <definition name="projects" extends="base.definition">
+    	<put-attribute name="title" value="ListProjects"></put-attribute>
+    	<put-attribute name="body" value="/WEB-INF/jsp/listProjects.jsp" />
+    </definition>
+    <definition name="scripts" extends="base.definition">
+    	<put-attribute name="title" value="ListScripts"></put-attribute>
+    	<put-attribute name="body" value="/WEB-INF/jsp/listScripts.jsp" />
+    </definition>
+    <definition name="feeds" extends="base.definition">
+    	<put-attribute name="title" value="ListFeeds"></put-attribute>
+    	<put-attribute name="body" value="/WEB-INF/jsp/listFeeds.jsp" />
+    </definition>
+    <definition name="locations" extends="base.definition">
+    	<put-attribute name="title" value="ListLocations"></put-attribute>
+    	<put-attribute name="body" value="/WEB-INF/jsp/listLocations.jsp" />
+    </definition>
+    <definition name="editChart" extends="base.definition">
+    	<put-attribute name="title" value="viewChart"></put-attribute>
+    	<put-attribute name="body" value="/WEB-INF/jsp/editChart.jsp" />
+    </definition>
+     <definition name="map" extends="map.definition">
+    	<put-attribute name="title" value="Map"></put-attribute>
+    	<put-attribute name="body" value="/WEB-INF/jsp/map.jsp" />
+    </definition>
+	<definition name="asnHome" >
+    	<put-attribute name="title" value="ASN"></put-attribute>
+    	<put-attribute name="body" value="/WEB-INF/jsp/asn-home.jsp" />
+    </definition>
+    <definition name="showFeeds" >
+    	<put-attribute name="title" value="ASN"></put-attribute>
+    	<put-attribute name="body" value="/WEB-INF/jsp/feedLayout.jsp" />
+    </definition>
+</tiles-definitions>

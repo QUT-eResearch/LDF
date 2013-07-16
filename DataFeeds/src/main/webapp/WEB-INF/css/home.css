@@ -1,0 +1,143 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+strong{
+	font-weight:bolder;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+html { 
+	height: 100%
+}
+body{  
+    margin: 0 auto;
+    padding: 0;
+    height: 100%;
+}
+.main{
+	margin: 0 auto;
+    width: 100%;
+	background-color: #FFFFFF;
+
+	height:100%;
+    position:relative;
+	    
+}
+a {
+	color: #49565C;
+	text-decoration: none;
+	outline: none;
+}
+.header{
+	text-align:center;
+	height:15%;
+	min-width:1200px;
+	background-color:white;
+}
+.headerTitle{
+	padding:15px;
+	vertical-align:middle;
+}
+.logo {
+	top: 30px;
+	position: absolute;
+}
+.logo h1{
+	font-size: 30px;
+	letter-spacing: 2px;
+	line-height: 1;
+	color: black;
+}
+.content{
+	min-width:1200px;
+	height:85%;
+	margin:0 auto;
+	overflow:hidden;
+	position:absolute;
+	width:100%;
+}
+.footer{
+	clear:both;
+	bottom:0;
+	height: 25%;
+	width:100%;	
+	padding: 0 0 0 30px;
+	position:absolute;
+	background-color:#F4F5F0;
+	color: #98A3A8;
+	z-index:10000px;
+	
+}
+.footerInner{
+
+}
+
+.indent {
+	padding: 0 100px;
+}
+.footer ul {
+	margin: 0;
+	padding: 25px 0 0 0;
+	list-style: none;
+}
+.footer ul li {
+	padding: 0;
+	float: left;
+	line-height: 20px;
+	width: 33.33%;
+}
+.footer h2 {
+	text-transform: uppercase;
+	font-size: 12px;
+	border-bottom: 2px solid;
+	margin-bottom: 10px;
+	line-height: 1;
+	padding-bottom: 5px;
+	margin-right: 20px;
+}
+.footer a.email {
+	text-decoration: underline;
+}

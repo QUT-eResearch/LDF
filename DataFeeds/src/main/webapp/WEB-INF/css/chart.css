@@ -1,0 +1,26 @@
+.chartContent{
+	width:100%;
+	min-height:580px;
+
+}
+#chartSelect{
+   background: transparent;
+   width: 268px;
+   padding: 5px;
+   font-size: 16px;
+   line-height: 1;
+   border: 1;
+   border-radius: 0;
+   height: 34px;
+   -webkit-appearance: none;
+}
+
+#menu { text-align:center;
+margin:20px;
+ }
+ 
+.chartBox{
+ 	text-align:center;
+ 	color:#ff0000;
+ }
+ 
